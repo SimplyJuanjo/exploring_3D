@@ -1,15 +1,25 @@
 const express = require('express');
-const http = require('http');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
 const { Server } = require('socket.io');
 const cors = require('cors');
 
 const app = express();
 app.use(cors());
 
-const server = http.createServer(app);
+// Cargar certificados generados por vite-plugin-mkcert
+// Ajusta la ruta si es necesario. Asumimos que están en el home del usuario.
+const certPath = path.join(process.env.USERPROFILE, '.vite-plugin-mkcert');
+const options = {
+  key: fs.readFileSync(path.join(certPath, 'dev.pem')),
+  cert: fs.readFileSync(path.join(certPath, 'cert.pem'))
+};
+
+const server = https.createServer(options, app);
 const io = new Server(server, {
   cors: {
-    origin: "*", // Permitir conexiones desde cualquier origen (útil para desarrollo local/LAN)
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
@@ -34,7 +44,7 @@ io.on('connection', (socket) => {
     gameState.logs.push(logEntry);
     // Limitar historial
     if (gameState.logs.length > 100) gameState.logs.shift();
-    
+
     // Reenviar a admins
     io.to('admin').emit('new_log', logEntry);
   });
