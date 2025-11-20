@@ -16,7 +16,7 @@ class DebugClient {
             this.socket.emit('identify', 'game');
         });
 
-        this.socket.on('execute_command', (command) => {
+        this.socket.on('command', (command) => {
             this.originalConsoleLog('DebugClient: Executing command', command);
             try {
                 // PRECAUCIÓN: eval es peligroso en producción, pero útil para prototipado/debug rápido
@@ -46,7 +46,7 @@ class DebugClient {
     }
 
     log(level, message) {
-        this.socket.emit('game_log', { level, message });
+        this.socket.emit('log', { level, message });
     }
 
     error(level, message) {

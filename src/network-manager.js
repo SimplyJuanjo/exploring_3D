@@ -130,13 +130,18 @@ export class NetworkManager {
 
     update(time) {
         if (time - this.lastSendTime > this.sendInterval) {
+            // Obtener rotación mundial de la cámara
+            const worldQuat = new THREE.Quaternion();
+            this.camera.getWorldQuaternion(worldQuat);
+            const worldRot = new THREE.Euler().setFromQuaternion(worldQuat);
+
             this.socket.emit('player-move', {
                 x: this.dolly.position.x,
                 y: this.dolly.position.y,
                 z: this.dolly.position.z,
-                rx: this.camera.rotation.x,
-                ry: this.camera.rotation.y,
-                rz: this.camera.rotation.z
+                rx: worldRot.x,
+                ry: worldRot.y,
+                rz: worldRot.z
             });
             this.lastSendTime = time;
         }

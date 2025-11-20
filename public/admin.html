@@ -71,7 +71,7 @@
             socket.emit('identify', 'admin');
         });
 
-        socket.on('new_log', (log) => {
+        socket.on('log', (log) => {
             const logsDiv = document.getElementById('logs');
             const entry = document.createElement('div');
             entry.className = 'log-entry';
@@ -92,7 +92,7 @@
             const input = document.getElementById('commandInput');
             const command = input.value;
             if (command) {
-                socket.emit('admin_command', command);
+                socket.emit('command', command);
                 // input.value = ''; // Opcional: limpiar o mantener para repetir
             }
         }

@@ -67,6 +67,10 @@ window.scene = scene;
 window.cube = cube;
 window.dolly = dolly; // Para debug
 
+// Throttling para object-move
+let lastObjectSendTime = 0;
+const objectSendInterval = 50; // ms
+
 // --- VR CONTROLLERS & TELEKINESIS ---
 
 const controller1 = renderer.xr.getController(0);
@@ -244,9 +248,10 @@ renderer.setAnimationLoop(() => {
       obj.getWorldQuaternion(worldQuat);
       const worldRot = new THREE.Euler().setFromQuaternion(worldQuat);
 
-      // Throttling: enviar cada ~50ms
-      if (time % 50 < 16) {
+      // Throttling: enviar cada ~50ms usando timestamps
+      if (time - lastObjectSendTime > objectSendInterval) {
         networkManager.sendObjectMove(obj.name, worldPos, worldRot);
+        lastObjectSendTime = time;
       }
     }
   });

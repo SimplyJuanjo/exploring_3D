@@ -61,9 +61,14 @@ io.on('connection', (socket) => {
   // --- OBJECT LOGIC ---
   socket.on('object-grab', (data) => {
     if (objects[data.id]) {
-      objects[data.id].owner = socket.id;
-      socket.broadcast.emit('object-grabbed', { id: data.id, owner: socket.id });
-      console.log(`Object ${data.id} grabbed by ${socket.id}`);
+      // Validar que el objeto no esté ya agarrado por otro jugador
+      if (objects[data.id].owner === null) {
+        objects[data.id].owner = socket.id;
+        socket.broadcast.emit('object-grabbed', { id: data.id, owner: socket.id });
+        console.log(`Object ${data.id} grabbed by ${socket.id}`);
+      } else {
+        console.log(`Object ${data.id} already grabbed by ${objects[data.id].owner}`);
+      }
     }
   });
 
