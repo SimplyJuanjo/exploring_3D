@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR Game Admin Panel</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #222;
+            color: #0f0;
+            padding: 20px;
+        }
+
+        #logs {
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #444;
+            padding: 10px;
+            margin-bottom: 20px;
+            background: #000;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            border-bottom: 1px solid #333;
+        }
+
+        .log-time {
+            color: #888;
+            margin-right: 10px;
+        }
+
+        .log-error {
+            color: #f55;
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            background: #333;
+            border: 1px solid #555;
+            color: #fff;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>VR Remote Debugger</h1>
+    <div id="logs"></div>
+    <div class="controls">
+        <input type="text" id="commandInput" placeholder="Ej: cube.material.color.set(0xff0000)">
+        <button onclick="sendCommand()">Send Command</button>
+    </div>
+
+    <script type="module">
+        import { io } from 'https://cdn.socket.io/4.7.2/socket.io.esm.min.js';
+        import { DEBUG_SERVER_URL } from './src/config.js';
+
+        // Conectar al servidor de debug
+        const socket = io(DEBUG_SERVER_URL);
+
+        socket.on('connect', () => {
+            console.log('Connected to debug server at ' + DEBUG_SERVER_URL);
+            socket.emit('identify', 'admin');
+        });
+
+        socket.on('new_log', (log) => {
+            const logsDiv = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            if (log.level === 'error') entry.classList.add('log-error');
+
+            const time = new Date(log.timestamp).toLocaleTimeString();
+            // Formatear mensaje (puede ser array de argumentos)
+            const msg = Array.isArray(log.message) ? log.message.map(m =>
+                typeof m === 'object' ? JSON.stringify(m) : m
+            ).join(' ') : log.message;
+
+            entry.innerHTML = `<span class="log-time">[${time}]</span> ${msg}`;
+            logsDiv.appendChild(entry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        });
+
+        function sendCommand() {
+            const input = document.getElementById('commandInput');
+            const command = input.value;
+            if (command) {
+                socket.emit('admin_command', command);
+                // input.value = ''; // Opcional: limpiar o mantener para repetir
+            }
+        }
+
+        // Permitir Enter para enviar
+        document.getElementById('commandInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendCommand();
+        });
+    </script>
+</body>
+
+</html>
