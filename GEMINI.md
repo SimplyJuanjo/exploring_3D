@@ -14,6 +14,33 @@
 - **Multijugador**: Sincronización básica de avatares implementada (Fantasmas).
 - **Sincronización de Objetos**: Objetos interactuables (cubo) ahora se sincronizan en tiempo real entre jugadores.
 
+## Reglas de Implementación
+
+### 🎨 Inspiración de Mistborn
+**CRÍTICO**: Usar solo mecánicas abstractas, NO terminología específica.
+
+**Durante desarrollo (placeholders permitidos):**
+- Comentarios internos pueden usar "Alomancia", "Mistborn", etc.
+- Variables temporales: `playerCanBurnSteel`, `isAllomancer`
+
+**Antes de cualquier release público (renombrar TODO):**
+- ❌ NO usar: "Alomancia", "Mistborn", "Misting", "Scadrial", "Coinshot", "Lurcher"
+- ❌ NO usar: Nombres de personajes (Kelsier, Vin, etc.)
+- ❌ NO usar: "Quemar metales" en UI visible
+- ✅ SÍ usar: Términos genéricos o inventados ("Metalurgia", "Fusión", "Catálisis")
+- ✅ SÍ creditar: "Inspired by Brandon Sanderson's work" en about/credits
+
+**Código seguro:**
+```javascript
+// ❌ MAL (antes de release)
+class AllomancerPlayer { burnMetal() {} }
+
+// ✅ BIEN
+class MetallurgistPlayer { consumeMetal() {} }
+```
+
+**Regla de oro**: Ideas ✅, nombres específicos ❌
+
 ## Mantenimiento de Documentación
 
 ⚠️ **IMPORTANTE**: Al crear una nueva versión, actualizar AMBOS archivos:
