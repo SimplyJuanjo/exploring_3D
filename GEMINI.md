@@ -1,15 +1,23 @@
-# Project Notes
+# Notas del Proyecto
 
 ## Hardware
-- **Target Device**: Meta Quest Pro
-- **Controllers**: Quest Pro Touch Controllers
+- **Dispositivo Objetivo**: Meta Quest Pro
+- **Controladores**: Quest Pro Touch Controllers
 
-## Known Issues
-- **HTTPS**: Required for WebXR. Using `vite-plugin-mkcert`.
+## Problemas Conocidos
+- **HTTPS**: Requerido para WebXR. Usando `vite-plugin-mkcert`.
 
-## Architecture
+## Arquitectura
 - **Frontend**: Vite + Three.js
-- **Backend**: Node.js + Socket.io (Debug + Multiplayer)
-- **Network**: Localhost for dev, Local IP for VR testing.
-- **Multiplayer**: Basic avatar sync implemented (Ghosts).
-- **Object Sync**: Interactable objects (cube) now sync in real-time between players.
+- **Backend**: Node.js + Socket.io (Debug + Multijugador)
+- **Red**: Localhost para desarrollo, IP local para testing VR.
+- **Multijugador**: Sincronización básica de avatares implementada (Fantasmas).
+- **Sincronización de Objetos**: Objetos interactuables (cubo) ahora se sincronizan en tiempo real entre jugadores.
+
+## Mantenimiento de Documentación
+
+⚠️ **IMPORTANTE**: Al crear una nueva versión, actualizar AMBOS archivos:
+1. **GEMINI.md** - Notas de proyecto, issues conocidos, estado actual
+2. **ARCHITECTURE.md** - Patrones de diseño, decisiones técnicas, diagramas
+
+Esto asegura que la documentación siempre esté sincronizada con el código.
