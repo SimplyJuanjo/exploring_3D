@@ -4,6 +4,7 @@ import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFa
 import DebugClient from './debug-client.js';
 import { DEBUG_SERVER_URL } from './config.js';
 import { WorldManager } from './world-manager.js';
+import { NetworkManager } from './network-manager.js';
 
 // Inicializar Debug Client
 const debug = new DebugClient(DEBUG_SERVER_URL);
@@ -46,6 +47,9 @@ scene.add(directionalLight);
 // Gestor de Mundo
 const worldManager = new WorldManager(scene, '/grass.png');
 
+// --- MULTIPLAYER ---
+const networkManager = new NetworkManager(scene, DEBUG_SERVER_URL, dolly, camera);
+
 // Objetos Interactuables
 const interactables = [];
 
@@ -54,6 +58,7 @@ const geometry = new THREE.BoxGeometry();
 const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
 const cube = new THREE.Mesh(geometry, material);
 cube.position.set(0, 1.6, -2);
+cube.name = 'cube1'; // ID importante para red
 scene.add(cube);
 interactables.push(cube);
 
@@ -117,6 +122,9 @@ function onSelectStart(event) {
     controller.attach(object);
     controller.userData.selected = object;
 
+    // NETWORK: Avisar que lo he agarrado
+    networkManager.sendObjectGrab(object.name);
+
     debug.log('info', `Objeto agarrado con ${event.data.handedness}`);
   }
 }
@@ -132,6 +140,9 @@ function onSelectEnd(event) {
 
     // Detach: El objeto vuelve a la escena
     scene.attach(object); // Devolver a la escena (mundo)
+
+    // NETWORK: Avisar que lo he soltado (con posición final)
+    networkManager.sendObjectRelease(object.name, object.position, object.rotation);
 
     controller.userData.selected = undefined;
 
@@ -199,6 +210,7 @@ function handleVRMovement(delta) {
 
 renderer.setAnimationLoop(() => {
   const delta = clock.getDelta();
+  const time = clock.getElapsedTime() * 1000; // ms
 
   // 1. Controles VR (Joystick)
   if (renderer.xr.isPresenting) {
@@ -215,8 +227,37 @@ renderer.setAnimationLoop(() => {
   // Actualizar mundo basado en posición del DOLLY (jugador)
   worldManager.update(dolly.position);
 
-  // Rotación ociosa si no está agarrado
-  if (!cube.parent || cube.parent.type === 'Scene') {
+  // Actualizar Red (Enviar posición)
+  networkManager.update(time);
+
+  // Actualizar Red (Objetos agarrados)
+  // Si tengo un objeto agarrado, enviar su posición
+  [controller1, controller2].forEach(controller => {
+    if (controller.userData.selected) {
+      const obj = controller.userData.selected;
+      // Enviar posición global del objeto
+      const worldPos = new THREE.Vector3();
+      obj.getWorldPosition(worldPos);
+
+      // Obtener rotación mundial como Euler
+      const worldQuat = new THREE.Quaternion();
+      obj.getWorldQuaternion(worldQuat);
+      const worldRot = new THREE.Euler().setFromQuaternion(worldQuat);
+
+      // Throttling: enviar cada ~50ms
+      if (time % 50 < 16) {
+        networkManager.sendObjectMove(obj.name, worldPos, worldRot);
+      }
+    }
+  });
+
+  // Rotación ociosa (Solo si nadie lo tiene agarrado)
+  // Comprobamos userData.owner en el objeto (que seteamos al recibir evento de red)
+  // O si lo tengo yo (controller.userData.selected)
+  const isGrabbedByMe = (controller1.userData.selected === cube || controller2.userData.selected === cube);
+  const isGrabbedByOther = (cube.userData.owner && cube.userData.owner !== networkManager.socket.id);
+
+  if (!isGrabbedByMe && !isGrabbedByOther) {
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
   }
