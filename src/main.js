@@ -3,6 +3,7 @@ import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
 import DebugClient from './debug-client.js';
 import { DEBUG_SERVER_URL } from './config.js';
+import { WorldManager } from './world-manager.js';
 
 // Inicializar Debug Client
 const debug = new DebugClient(DEBUG_SERVER_URL);
@@ -11,7 +12,8 @@ console.log('Iniciando Juego 3D WebVR...');
 
 // Escena
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x505050);
+scene.background = new THREE.Color(0x87CEEB); // Sky blue simple por ahora
+scene.fog = new THREE.Fog(0x87CEEB, 10, 50); // Niebla para ocultar el borde del mundo
 
 // Cámara
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
@@ -35,9 +37,8 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(1, 1, 1).normalize();
 scene.add(directionalLight);
 
-// Suelo (Grid)
-const gridHelper = new THREE.GridHelper(10, 10);
-scene.add(gridHelper);
+// Gestor de Mundo
+const worldManager = new WorldManager(scene, '/grass.png');
 
 // Objetos Interactuables
 const interactables = [];
@@ -132,7 +133,27 @@ function onSelectEnd(event) {
 }
 
 // Loop de animación
+const clock = new THREE.Clock();
+const speed = 5; // Metros por segundo
+const keys = {};
+
+window.addEventListener('keydown', (e) => keys[e.code] = true);
+window.addEventListener('keyup', (e) => keys[e.code] = false);
+
 renderer.setAnimationLoop(() => {
+  const delta = clock.getDelta();
+
+  // Controles WASD (Solo si no estamos en VR)
+  if (!renderer.xr.isPresenting) {
+    if (keys['KeyW']) camera.translateZ(-speed * delta);
+    if (keys['KeyS']) camera.translateZ(speed * delta);
+    if (keys['KeyA']) camera.translateX(-speed * delta);
+    if (keys['KeyD']) camera.translateX(speed * delta);
+  }
+
+  // Actualizar mundo basado en posición de cámara (jugador)
+  worldManager.update(camera.position);
+
   // Rotación ociosa si no está agarrado
   if (!cube.parent || cube.parent.type === 'Scene') {
     cube.rotation.x += 0.01;
