@@ -15,9 +15,15 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87CEEB); // Sky blue simple por ahora
 scene.fog = new THREE.Fog(0x87CEEB, 10, 50); // Niebla para ocultar el borde del mundo
 
+// --- DOLLY SYSTEM (Player Body) ---
+const dolly = new THREE.Group();
+dolly.position.set(0, 0, 0);
+scene.add(dolly);
+
 // Cámara
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 1.6, 3);
+camera.position.set(0, 1.6, 3); // Offset inicial para desktop
+dolly.add(camera); // La cámara ahora es hija del Dolly
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -54,28 +60,29 @@ interactables.push(cube);
 // Variables globales
 window.scene = scene;
 window.cube = cube;
+window.dolly = dolly; // Para debug
 
 // --- VR CONTROLLERS & TELEKINESIS ---
 
 const controller1 = renderer.xr.getController(0);
 controller1.addEventListener('selectstart', onSelectStart);
 controller1.addEventListener('selectend', onSelectEnd);
-scene.add(controller1);
+dolly.add(controller1); // Añadir al dolly
 
 const controller2 = renderer.xr.getController(1);
 controller2.addEventListener('selectstart', onSelectStart);
 controller2.addEventListener('selectend', onSelectEnd);
-scene.add(controller2);
+dolly.add(controller2); // Añadir al dolly
 
 const controllerModelFactory = new XRControllerModelFactory();
 
 const controllerGrip1 = renderer.xr.getControllerGrip(0);
 controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
-scene.add(controllerGrip1);
+dolly.add(controllerGrip1); // Añadir al dolly
 
 const controllerGrip2 = renderer.xr.getControllerGrip(1);
 controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
-scene.add(controllerGrip2);
+dolly.add(controllerGrip2); // Añadir al dolly
 
 // Rayo visual (Línea)
 const geometryLine = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
@@ -124,7 +131,7 @@ function onSelectEnd(event) {
     object.material.emissive.b = 0;
 
     // Detach: El objeto vuelve a la escena
-    scene.attach(object);
+    scene.attach(object); // Devolver a la escena (mundo)
 
     controller.userData.selected = undefined;
 
@@ -134,25 +141,79 @@ function onSelectEnd(event) {
 
 // Loop de animación
 const clock = new THREE.Clock();
-const speed = 5; // Metros por segundo
+const speed = 3; // Metros por segundo (VR suele ser más lento para evitar mareo)
 const keys = {};
 
 window.addEventListener('keydown', (e) => keys[e.code] = true);
 window.addEventListener('keyup', (e) => keys[e.code] = false);
 
+// Vector reutilizable para movimiento
+const moveVector = new THREE.Vector3();
+
+function handleVRMovement(delta) {
+  const session = renderer.xr.getSession();
+  if (!session) return;
+
+  let inputSources = session.inputSources;
+
+  // Debug log cada 60 frames para no saturar
+  if (renderer.info.render.frame % 60 === 0) {
+    // debug.log('info', `Input Sources: ${inputSources.length}`);
+  }
+
+  for (const source of inputSources) {
+    // Solo permitir movimiento con el mando IZQUIERDO
+    if (source.gamepad && source.handedness === 'left') {
+      const gamepad = source.gamepad;
+
+      const x = gamepad.axes[2] || 0;
+      const y = gamepad.axes[3] || 0;
+
+      if (Math.abs(x) > 0.1 || Math.abs(y) > 0.1) {
+        // Debug log throttled (cada 60 frames)
+        if (renderer.info.render.frame % 60 === 0) {
+          debug.log('info', `Moving with LEFT stick: X:${x.toFixed(2)} Y:${y.toFixed(2)}`);
+        }
+
+        const direction = new THREE.Vector3();
+        camera.getWorldDirection(direction);
+        direction.y = 0;
+        direction.normalize();
+
+        const sideDirection = new THREE.Vector3();
+        sideDirection.crossVectors(camera.up, direction).normalize();
+
+        moveVector.set(0, 0, 0);
+        moveVector.addScaledVector(direction, -y * speed * delta);
+        // Invertir X: antes era +x, ahora -x (o viceversa según lo que sintió el usuario)
+        // El usuario dijo "izquierda y derecha estan invertidas".
+        // Si antes x positivo iba a la derecha y el usuario sentía que iba al revés, 
+        // entonces x positivo debería ir a la izquierda.
+        moveVector.addScaledVector(sideDirection, -x * speed * delta);
+
+        dolly.position.add(moveVector);
+      }
+    }
+  }
+}
+
 renderer.setAnimationLoop(() => {
   const delta = clock.getDelta();
 
-  // Controles WASD (Solo si no estamos en VR)
-  if (!renderer.xr.isPresenting) {
-    if (keys['KeyW']) camera.translateZ(-speed * delta);
-    if (keys['KeyS']) camera.translateZ(speed * delta);
-    if (keys['KeyA']) camera.translateX(-speed * delta);
-    if (keys['KeyD']) camera.translateX(speed * delta);
+  // 1. Controles VR (Joystick)
+  if (renderer.xr.isPresenting) {
+    handleVRMovement(delta);
+  }
+  // 2. Controles Desktop (WASD)
+  else {
+    if (keys['KeyW']) dolly.translateZ(-speed * delta);
+    if (keys['KeyS']) dolly.translateZ(speed * delta);
+    if (keys['KeyA']) dolly.translateX(-speed * delta);
+    if (keys['KeyD']) dolly.translateX(speed * delta);
   }
 
-  // Actualizar mundo basado en posición de cámara (jugador)
-  worldManager.update(camera.position);
+  // Actualizar mundo basado en posición del DOLLY (jugador)
+  worldManager.update(dolly.position);
 
   // Rotación ociosa si no está agarrado
   if (!cube.parent || cube.parent.type === 'Scene') {
