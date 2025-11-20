@@ -150,8 +150,30 @@ Lurcher        → Atractor / Magnetista
 
 **Filosofía de diseño:**
 - **Moddable desde el core** (no "añadido después")
-- **Open-source friendly** (MIT License? Es esta la mejor licencia para hacer un proyecto sostenible a futuro? Cual nos protege mejor?)
+- **Open-source estratégico** (Ver estrategia de licenciamiento abajo)
 - **Community-first** (Discord, GitHub, feedback loops)
+
+### 📜 **Estrategia de Licenciamiento**
+
+**Fase 1 - Prototipo (ACTUAL):**
+- **MIT License** - Máxima adopción y feedback
+- Prioridad: Validar mecánicas y obtener contribuciones
+- Legal cambiar licencia más adelante
+
+**Fase 2 - Pre-Alpha (Si logramos loop jugable en ~1 mes):**
+- **MPL 2.0** (Mozilla Public License)
+- Protege el engine core (cambios deben compartirse)
+- Permite mods propietarios (modders pueden monetizar)
+- Balance entre protección y flexibilidad
+
+**Estructura planificada:**
+```
+src/core/      → MPL 2.0 (motor protegido)
+mods/          → Modders eligen licencia
+assets/        → CC-BY-SA o propietaria
+```
+
+**Decisión final:** MPL 2.0 si tenemos gameplay atractivo, MIT si seguimos experimentando.
 
 ---
 
