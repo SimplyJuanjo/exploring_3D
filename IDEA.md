@@ -366,6 +366,13 @@ Conceptualmente, esto es un playground de ideas para explorar el desarrollo crea
 - ❌ **Tracking issues**: WebXR tiene bugs que los motores nativos no tienen
 - ❌ **Haptics limitados**: No puedes hacer vibración compleja como juegos AAA
 - ❌ **Foveated rendering**: No disponible (Unity/Unreal sí lo tienen)
+- ❌ **Eye tracking NO disponible**: Aunque Quest Pro tiene hardware, WebXR no expone la API (privacidad)
+  - Solo **head tracking** (posición/rotación del headset)
+  - Imposible hacer UI que siga la mirada del jugador
+  - Limitación para mecánicas avanzadas (e.g., líneas alománticas basadas en mirada real)
+- ❌ **Visión estereoscópica duplica geometría**: Líneas/UI pueden verse duplicadas (una por ojo)
+  - No hay control fino de qué se renderiza en cada ojo en Three.js
+  - Solución parcial: reducir opacidad
 
 #### 5. **Escalabilidad Limitada**
 - ❌ **No hay ECS (Entity Component System)**: Escalar a 1000+ entidades es imposible

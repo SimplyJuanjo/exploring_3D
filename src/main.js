@@ -5,6 +5,8 @@ import DebugClient from './debug-client.js';
 import { DEBUG_SERVER_URL } from './config.js';
 import { WorldManager } from './world-manager.js';
 import { NetworkManager } from './network-manager.js';
+import { CoinManager } from './coin-manager.js';
+import { AllomanticLines } from './allomantic-lines.js';
 
 // Inicializar Debug Client
 const debug = new DebugClient(DEBUG_SERVER_URL);
@@ -49,6 +51,13 @@ const worldManager = new WorldManager(scene, '/grass.png');
 
 // --- MULTIPLAYER ---
 const networkManager = new NetworkManager(scene, DEBUG_SERVER_URL, dolly, camera);
+
+// --- COIN MANAGER (Monedas Alománticas) ---
+const coinManager = new CoinManager(scene);
+coinManager.spawnCoins(30); // Spawn 30 monedas metálicas
+
+// --- ALLOMANTIC LINES (Líneas azules a metales) ---
+const allomanticLines = new AllomanticLines(scene);
 
 // Objetos Interactuables
 const interactables = [];
@@ -230,6 +239,12 @@ renderer.setAnimationLoop(() => {
 
   // Actualizar mundo basado en posición del DOLLY (jugador)
   worldManager.update(dolly.position);
+
+  // Actualizar monedas (física + gravedad)
+  coinManager.update(delta);
+
+  // Actualizar líneas alománticas (mostrar metales en campo de visión)
+  allomanticLines.update(camera, coinManager.getMetalObjects());
 
   // Actualizar Red (Enviar posición)
   networkManager.update(time);
