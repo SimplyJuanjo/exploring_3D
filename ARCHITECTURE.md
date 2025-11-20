@@ -230,7 +230,7 @@ sequenceDiagram
 
 ### Frontend
 - **Three.js**: Rendering 3D y escena
-- **WebXR**: API para VR (Quest Pro)
+- **WebXR**: API para VR (Quest)
 - **Socket.io-client**: Cliente WebSocket
 - **Vite**: Build tool y dev server
 - **vite-plugin-mkcert**: HTTPS local (requerido por WebXR)
@@ -300,4 +300,4 @@ sequenceDiagram
 
 **Versión:** 0.0.1  
 **Última actualización:** 2025-11-20  
-**Desarrollado con:** Meta Quest Pro + Gemini AI
+**Desarrollado con:** Meta Quest + Antigravity (Gemini 3 Pro / Claude 4.5 Sonnet)

@@ -1,8 +1,8 @@
 # Notas del Proyecto
 
 ## Hardware
-- **Dispositivo Objetivo**: Meta Quest Pro
-- **Controladores**: Quest Pro Touch Controllers
+- **Dispositivo Objetivo**: Meta Quest
+- **Controladores**: Quest Touch Controllers
 
 ## Problemas Conocidos
 - **HTTPS**: Requerido para WebXR. Usando `vite-plugin-mkcert`.
@@ -20,10 +20,10 @@
 **CRÍTICO**: Usar solo mecánicas abstractas, NO terminología específica.
 
 **Durante desarrollo (placeholders permitidos):**
-- Comentarios internos pueden usar "Alomancia", "Mistborn", etc.
+- Comentarios internos pueden usar "Alomancia", "quemar metales", etc.
 - Variables temporales: `playerCanBurnSteel`, `isAllomancer`
 
-**Antes de cualquier release público (renombrar TODO):**
+**Antes de cualquier release público (renombrar TODO lo que tenga CopyRight):**
 - ❌ NO usar: "Alomancia", "Mistborn", "Misting", "Scadrial", "Coinshot", "Lurcher"
 - ❌ NO usar: Nombres de personajes (Kelsier, Vin, etc.)
 - ❌ NO usar: "Quemar metales" en UI visible

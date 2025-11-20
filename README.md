@@ -2,13 +2,13 @@
 
 > Juego VR Multijugador en WebXR construido con Three.js
 
-Un experimento de realidad virtual para navegadores con soporte multiplayer, mundos infinitos procedurales y mecánicas de telekinesis. Diseñado y desarrollado para **Meta Quest Pro**.
+Un experimento de realidad virtual para navegadores con soporte multiplayer, mundos infinitos procedurales y mecánicas de telekinesis. Diseñado y desarrollado para **Meta Quest**.
 
 ---
 
 ## ✨ Características
 
-- 🥽 **WebXR VR**: Soporte completo para cascos VR (Meta Quest Pro)
+- 🥽 **WebXR VR**: Soporte completo para cascos VR (Meta Quest)
 - 👥 **Multijugador**: Hasta 4 jugadores simultáneos con sincronización en tiempo real
 - 🌍 **Mundo Infinito**: Generación procedural de terreno con sistema de chunks
 - 🧲 **Telekinesis**: Agarra y mueve objetos con los controles VR
@@ -36,7 +36,7 @@ Un experimento de realidad virtual para navegadores con soporte multiplayer, mun
 ## 📋 Requisitos
 
 - **Node.js** v18+ y npm
-- **Meta Quest Pro** (o cualquier casco compatible con WebXR)
+- **Meta Quest** (o cualquier casco compatible con WebXR)
 - **Certificados SSL** (generados automáticamente por vite-plugin-mkcert)
 - **Red local** para testing en VR
 
@@ -109,7 +109,7 @@ Para debug remoto, accede a:
 - **W/A/S/D** - Movimiento
 - **Mouse** - Mirar alrededor
 
-### VR (Meta Quest Pro)
+### VR (Meta Quest)
 - **Joystick Izquierdo** - Movimiento smooth locomotion
 - **Trigger (Gatillo)** - Agarrar/Soltar objetos con telekinesis
 - **Headset** - Mirar alrededor (tracking natural)
@@ -186,7 +186,7 @@ MIT License - siéntete libre de usar este código para aprender, experimentar o
 
 ## 👨‍💻 Desarrollado con
 
-- **Meta Quest Pro** como plataforma objetivo
+- **Meta Quest** como plataforma objetivo
 - **Gemini AI** como asistente de desarrollo
 - ❤️ y mucho café
 
